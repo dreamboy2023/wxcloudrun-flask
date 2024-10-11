@@ -26,7 +26,6 @@ def chat():
         "model": "deepseek-chat",
         "messages":[{"role": "system", "content": "You are a helpful assistant."},{"role": "user", "content": "Hello!"}]
     }
-
     response = requests.post(url, headers=headers, json=data)
 
     # 输出结果
