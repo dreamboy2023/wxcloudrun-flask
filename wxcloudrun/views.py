@@ -9,23 +9,6 @@ import requests
 
 @app.route('/')
 def index():
-    url = 'https://api.deepseek.com/chat/completions'
-    headers = {
-        'Authorization': 'Bearer sk-901ef78a52a34203afa54a9672e7161c',
-        'Content-Type': 'application/json'
-    }
-    data = {
-        "model": "deepseek-chat",
-        "messages":[{"role": "system", "content": "You are a helpful assistant."},{"role": "user", "content": "Hello!"}]
-    }
-    response = requests.post(url, headers=headers, json=data)
-
-    # 输出结果
-    result = response.text
-    return result
-
-@app.route('/api/chat', methods=['GET'])
-def chat():
     # 定义请求URL和头信息
     url = 'https://api.deepseek.com/chat/completions'
     headers = {
@@ -39,7 +22,40 @@ def chat():
     response = requests.post(url, headers=headers, json=data)
 
     # 输出结果
-    result = response.text
+    response_data = response.json()
+    result = response_data["choices"][0]["message"]
+    return result
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    # 定义请求URL和头信息
+    url = 'https://api.deepseek.com/chat/completions'
+    headers = {
+        'Authorization': 'Bearer sk-901ef78a52a34203afa54a9672e7161c',
+        'Content-Type': 'application/json'
+    }
+    # 获取请求体参数
+    params = request.get_json()
+    systemprompt = params['systemprompt']
+    round1 = params['round1']
+    data = {
+        "model": "deepseek-chat",
+        "messages":[
+            {
+                "role": "system", 
+                "content": systemprompt
+            },
+            {
+                "role": "user", 
+                "content": round1
+            }
+        ]
+    }
+    response = requests.post(url, headers=headers, json=data)
+
+    # 输出结果
+    response_data = response.json()
+    result = response_data["choices"][0]["message"]
     return result
 
 @app.route('/api/count', methods=['POST'])
