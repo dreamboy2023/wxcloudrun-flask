@@ -9,10 +9,20 @@ import requests
 
 @app.route('/')
 def index():
-    """
-    :return: 返回index页面
-    """
-    return "Hello World!"
+    url = 'https://api.deepseek.com/chat/completions'
+    headers = {
+        'Authorization': 'Bearer sk-901ef78a52a34203afa54a9672e7161c',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        "model": "deepseek-chat",
+        "messages":[{"role": "system", "content": "You are a helpful assistant."},{"role": "user", "content": "Hello!"}]
+    }
+    response = requests.post(url, headers=headers, json=data)
+
+    # 输出结果
+    result = response.text
+    return result
 
 @app.route('/api/chat', methods=['GET'])
 def chat():
@@ -40,8 +50,6 @@ def count():
 
     # 获取请求体参数
     params = request.get_json()
-    print(params)
-    #return params
 
     # 检查action参数
     if 'action' not in params:
