@@ -16,7 +16,7 @@ def index():
 
 @app.route('/api/chat', methods=['GET'])
 def chat():
-    client = ZhipuAI(api_key="3cf8063a212029f13d7df043efd4a312.JXNtazBxTE2F5riK")  # 请填写您自己的APIKey
+    client = ZhipuAI(api_key="")  # 请填写您自己的APIKey
     response = client.chat.completions.create(
     model="glm-4-flash",  # 请填写您要调用的模型名称
     messages=[
