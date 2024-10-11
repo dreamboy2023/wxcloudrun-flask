@@ -4,7 +4,7 @@ from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
-from zhipuai import ZhipuAI
+import requests
 
 
 @app.route('/')
@@ -16,16 +16,21 @@ def index():
 
 @app.route('/api/chat', methods=['GET'])
 def chat():
-    client = ZhipuAI(api_key="")  # 请填写您自己的APIKey
-    response = client.chat.completions.create(
-    model="glm-4-flash",  # 请填写您要调用的模型名称
-    messages=[
-        {'role': 'system', 'content': '你是一位儿童绘本的内容创意专家，你的任务是根据用户提供的主题，提供适合7岁到10岁小学生阅读的、专业的、有见地的绘本内容创意。'},
-        {'role': 'user', 'content': '请以“黑神话·悟空”这款最近热门的游戏为主题，提供儿童绘本创意。要求：绘本分为4个小段，每个小段需要有插图。'},
-        ],
-    )
-    result = response.choices[0].message
-    print(result)
+    # 定义请求URL和头信息
+    url = 'https://api.deepseek.com/chat/completions'
+    headers = {
+        'Authorization': 'Bearer sk-901ef78a52a34203afa54a9672e7161c',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        "model": "deepseek-chat",
+        "messages":[{"role": "system", "content": "You are a helpful assistant."},{"role": "user", "content": "Hello!"}]
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    # 输出结果
+    result = response.text
     return result
 
 @app.route('/api/count', methods=['POST'])
