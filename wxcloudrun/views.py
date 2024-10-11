@@ -22,6 +22,7 @@ def count():
 
     # 获取请求体参数
     params = request.get_json()
+    return params
 
     # 检查action参数
     if 'action' not in params:
