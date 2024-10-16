@@ -72,13 +72,14 @@ def callDeepSeek(messages, key):
                 "role": "system",
                 "content": "你叫小鹿"
             }]
-    messages = systemprompt.extend(messages)
+    #messages = systemprompt.extend(messages)
     requestData = {
       "model": "deepseek-chat",
       "messages": messages,
-      "tools": tools
+      #"tools": tools
     }
     response = requests.post(url, headers=headers, json=requestData)
+    print(response)
     # 输出结果
     response_data = response.json()
     result = response_data["choices"][0]["message"]
