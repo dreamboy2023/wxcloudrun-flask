@@ -9,39 +9,89 @@ import requests
 
 @app.route('/')
 def index():
-    
     return "hello world"
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
+def callDeepSeek(messages, key):
     # 定义请求URL和头信息
     url = 'https://api.deepseek.com/chat/completions'
     headers = {
-        'Authorization': 'Bearer ',
+        'Authorization': f"Bearer {key}",
         'Content-Type': 'application/json'
     }
-    # 获取请求体参数
-    params = request.get_json()
-    systemprompt = params['systemprompt']
-    round1 = params['round1']
-    data = {
-        "model": "deepseek-chat",
-        "messages":[
-            {
-                "role": "system", 
-                "content": systemprompt
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_time",
+                "description": "获取当前时间",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    }
+                },
             },
-            {
-                "role": "user", 
-                "content": round1
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "baidu_search",
+                "description": "通过百度搜索引擎获取信息, 用户需要输入搜索关键词",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "query, 比如北京在哪里、丁磊",
+                        }
+                    },
+                    "required": ["query"]
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_weather",
+                "description": "获取某个地点的天气情况，需要用户输入地点",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "城市或地区, 比如天津、宁波",
+                        }
+                    },
+                    "required": ["location"]   
+                }
             }
-        ]
-    }
-    response = requests.post(url, headers=headers, json=data)
+        }
+    ]
 
+
+    systemprompt = [{
+                "role": "system",
+                "content": "你叫小鹿"
+            }]
+    messages = systemprompt.extend(messages)
+    requestData = {
+      "model": "deepseek-chat",
+      "messages": messages,
+      "tools": tools
+    }
+    response = requests.post(url, headers=headers, json=requestData)
     # 输出结果
     response_data = response.json()
     result = response_data["choices"][0]["message"]
+    return result
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    # 获取请求体参数
+    params = request.get_json()
+    print(params)
+    messages = params['messages']
+    key = params['key']
+    result = callDeepSeek(messages, key)
     return result
 
 @app.route('/api/count', methods=['POST'])
