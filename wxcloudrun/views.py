@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, request
+from flask import render_template, request, Response
 from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
@@ -67,23 +67,17 @@ def callDeepSeek(messages, key):
         }
     ]
 
-
-    systemprompt = [{
-                "role": "system",
-                "content": "你叫小鹿"
-            }]
-    #messages = systemprompt.extend(messages)
     requestData = {
       "model": "deepseek-chat",
       "messages": messages,
-      #"tools": tools
+      "stream": True,
+      "tools": tools
     }
-    response = requests.post(url, headers=headers, json=requestData)
-    print(response)
-    # 输出结果
-    response_data = response.json()
-    result = response_data["choices"][0]["message"]
-    return result
+    return requests.post(url, headers=headers, json=requestData, stream=True).json()["choices"][0]["message"]
+    # # 输出结果
+    # response_data = response.json()
+    # result = response_data["choices"][0]["message"]
+    # return result
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -94,6 +88,15 @@ def chat():
     key = params['key']
     result = callDeepSeek(messages, key)
     return result
+
+@app.route('/api/chatstream', methods=['POST'])
+def chat():
+    # 获取请求体参数
+    params = request.get_json()
+    print(params)
+    messages = params['messages']
+    key = params['key']
+    return Response(callDeepSeek(messages, key), content_type='text/event-stream')
 
 @app.route('/api/count', methods=['POST'])
 def count():
